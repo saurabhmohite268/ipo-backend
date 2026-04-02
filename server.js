@@ -72,8 +72,14 @@ app.post('/api/upload-report', upload.single('pdf'), async (req, res) => {
 });
 
 app.post('/api/upload-report-ipo', upload.single('pdf'), async (req, res) => {
-
   try {
+
+    console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
+
+    if (!req.file) {
+      return res.status(400).json({ error: "PDF file not received" });
+    }
 
     const { company, name } = req.body;
 
@@ -93,9 +99,9 @@ app.post('/api/upload-report-ipo', upload.single('pdf'), async (req, res) => {
     });
 
   } catch (error) {
+    console.error("UPLOAD IPO ERROR:", error);
     res.status(500).json({ error: error.message });
   }
-
 });
 
 /* ✅ Test Route */
