@@ -50,8 +50,7 @@ app.post('/api/upload-report', upload.single('pdf'), async (req, res) => {
 
     const { company, name } = req.body;
 
-    const pdfUrl =
-      `process.env.BASE_URL/reports/${req.file.filename}`;
+    const pdfUrl = `${process.env.BASE_URL}/reports/${req.file.filename}`;
 
     const newReport = new Equity({
       company,
@@ -78,8 +77,7 @@ app.post('/api/upload-report-ipo', upload.single('pdf'), async (req, res) => {
 
     const { company, name } = req.body;
 
-    const pdfUrl =
-      `process.env.BASE_URL/reports/${req.file.filename}`;
+    const pdfUrl = `${process.env.BASE_URL}/reports/${req.file.filename}`;
 
     const newReport = new Ipo({
       company,
@@ -106,14 +104,36 @@ app.get('/', (req,res)=>{
 });
 
 /* ✅ Mongo Dynamic API */
-app.get('/api/ipos', async (req,res)=>{
-  const ipos = await Ipo.find();
-  res.json(ipos);
+app.get('/api/ipos', async (req, res) => {
+
+  try {
+
+    const ipos = await Ipo.find();
+    res.json(ipos);
+
+  } catch (error) {
+
+    console.error("IPO Fetch Error:", error);
+    res.status(500).json({ error: "Failed to fetch IPO data" });
+
+  }
+
 });
 
-app.get('/api/reports', async (req,res)=>{
-  const equity = await Equity.find();
-  res.json(equity);
+app.get('/api/reports', async (req, res) => {
+
+  try {
+
+    const reports = await Equity.find();
+    res.json(reports);
+
+  } catch (error) {
+
+    console.error("Reports Fetch Error:", error);
+    res.status(500).json({ error: "Failed to fetch reports" });
+
+  }
+
 });
 
 const fs = require('fs');
@@ -129,13 +149,14 @@ app.put('/api/reports/:id', upload.single('pdf'), async (req, res) => {
     // Delete old file if new uploaded
     if (req.file && report.pdfUrl) {
       const oldPath = report.pdfUrl.replace(
-        'process.env.BASE_URL/', ''
-      );
+  `${process.env.BASE_URL}/`,
+  ''
+);
       if (fs.existsSync(oldPath)) {
         fs.unlinkSync(oldPath);
       }
       report.pdfUrl =
-        `process.env.BASE_URL/reports/${req.file.filename}`;
+  `${process.env.BASE_URL}/reports/${req.file.filename}`;
     }
 
     report.company = req.body.company || report.company;
@@ -162,7 +183,7 @@ app.delete('/api/reports/:id', async (req, res) => {
     // Delete file from server
     if (report.pdfUrl) {
       const filePath = report.pdfUrl.replace(
-        'process.env.BASE_URL/', ''
+        `${process.env.BASE_URL}/`, ''
       );
       if (fs.existsSync(filePath)) {
         fs.unlinkSync(filePath);
@@ -189,15 +210,16 @@ app.put('/api/ipos/:id', upload.single('pdf'), async (req, res) => {
 
     if (req.file && report.pdfUrl) {
       const oldPath = report.pdfUrl.replace(
-        'process.env.BASE_URL/', ''
-      );
+  `${process.env.BASE_URL}/`,
+  ''
+);
 
       if (fs.existsSync(oldPath)) {
         fs.unlinkSync(oldPath);
       }
 
       report.pdfUrl =
-        `process.env.BASE_URL/reports/${req.file.filename}`;
+  `${process.env.BASE_URL}/reports/${req.file.filename}`;
     }
 
     report.company = req.body.company || report.company;
@@ -223,7 +245,7 @@ app.delete('/api/ipos/:id', async (req, res) => {
 
     if (report.pdfUrl) {
       const filePath = report.pdfUrl.replace(
-        'process.env.BASE_URL/', ''
+        `${process.env.BASE_URL}/`, ''
       );
 
       if (fs.existsSync(filePath)) {
