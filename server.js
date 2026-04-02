@@ -3,7 +3,13 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const fs = require('fs');
+
 require('dotenv').config();
+
+if (!fs.existsSync('reports')) {
+  fs.mkdirSync('reports');
+}
 
 const app = express();   // ✅ FIRST CREATE APP
 
@@ -47,6 +53,10 @@ const upload = multer({
 app.post('/api/upload-report', upload.single('pdf'), async (req, res) => {
 
   try {
+
+    if (!req.file) {
+  return res.status(400).json({ error: "PDF file not received" });
+}
 
     const { company, name } = req.body;
 
@@ -141,8 +151,6 @@ app.get('/api/reports', async (req, res) => {
   }
 
 });
-
-const fs = require('fs');
 
 /* ===== UPDATE EQUITY REPORT ===== */
 app.put('/api/reports/:id', upload.single('pdf'), async (req, res) => {
